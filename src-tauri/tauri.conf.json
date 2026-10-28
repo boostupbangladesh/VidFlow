@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "VidFlow",
+  "version": "1.0.0",
+  "identifier": "com.zapyteam.vidflow",
+  "build": {
+    "beforeDevCommand": "npm run app",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build:app",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "VidFlow - Developed by ZapyTeam (WhatsApp: +8801911444546)",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 380,
+        "minHeight": 540,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

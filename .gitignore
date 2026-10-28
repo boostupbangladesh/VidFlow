@@ -1,0 +1,22 @@
+node_modules
+dist
+build
+out
+.DS_Store
+.env
+*.local
+chatbook_transcript.txt
+
+# Server
+server/node_modules
+server/dist
+server/.env
+server/data/vidflow_db.json
+
+# Tauri
+src-tauri/target
+src-tauri/gen
+
+# Agents scratch
+.agents/
+
