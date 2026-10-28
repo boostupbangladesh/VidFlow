@@ -334,6 +334,190 @@ export const projectActions = {
     notify();
   },
 
+  duplicateSelected: () => {
+    if (!state.selectedElementId) return;
+    pushHistory();
+
+    let newElementId = "";
+    let newClipId = "";
+
+    const updatedTracks = state.project.tracks.map((track) => {
+      const clipIndex = track.clips.findIndex((c) => c.element.id === state.selectedElementId);
+      if (clipIndex === -1) return track;
+
+      const origClip = track.clips[clipIndex];
+      newElementId = "elem_" + Date.now();
+      newClipId = "clip_" + Date.now();
+
+      const clonedElement: MotionElement = {
+        ...JSON.parse(JSON.stringify(origClip.element)),
+        id: newElementId,
+        transform: {
+          ...origClip.element.transform,
+          x: origClip.element.transform.x + 30,
+          y: origClip.element.transform.y + 30,
+        },
+      };
+
+      const clonedClip: Clip = {
+        ...JSON.parse(JSON.stringify(origClip)),
+        id: newClipId,
+        name: `${origClip.name} (Copy)`,
+        element: clonedElement,
+      };
+
+      const newClips = [...track.clips];
+      newClips.splice(clipIndex + 1, 0, clonedClip);
+      return { ...track, clips: newClips };
+    });
+
+    state = {
+      ...state,
+      project: { ...state.project, tracks: updatedTracks },
+      selectedElementId: newElementId || state.selectedElementId,
+      selectedClipId: newClipId || state.selectedClipId,
+    };
+    notify();
+  },
+
+  bringToFront: (elementId: string) => {
+    pushHistory();
+    const tracks = state.project.tracks.map((track) => {
+      const idx = track.clips.findIndex((c) => c.element.id === elementId);
+      if (idx === -1) return track;
+      const targetClip = track.clips[idx];
+      const otherClips = track.clips.filter((_, i) => i !== idx);
+      return { ...track, clips: [...otherClips, targetClip] };
+    });
+    state = { ...state, project: { ...state.project, tracks } };
+    notify();
+  },
+
+  sendToBack: (elementId: string) => {
+    pushHistory();
+    const tracks = state.project.tracks.map((track) => {
+      const idx = track.clips.findIndex((c) => c.element.id === elementId);
+      if (idx === -1) return track;
+      const targetClip = track.clips[idx];
+      const otherClips = track.clips.filter((_, i) => i !== idx);
+      return { ...track, clips: [targetClip, ...otherClips] };
+    });
+    state = { ...state, project: { ...state.project, tracks } };
+    notify();
+  },
+
+  moveLayerUp: (elementId: string) => {
+    pushHistory();
+    const tracks = state.project.tracks.map((track) => {
+      const idx = track.clips.findIndex((c) => c.element.id === elementId);
+      if (idx === -1 || idx === track.clips.length - 1) return track;
+      const newClips = [...track.clips];
+      const temp = newClips[idx];
+      newClips[idx] = newClips[idx + 1];
+      newClips[idx + 1] = temp;
+      return { ...track, clips: newClips };
+    });
+    state = { ...state, project: { ...state.project, tracks } };
+    notify();
+  },
+
+  moveLayerDown: (elementId: string) => {
+    pushHistory();
+    const tracks = state.project.tracks.map((track) => {
+      const idx = track.clips.findIndex((c) => c.element.id === elementId);
+      if (idx <= 0) return track;
+      const newClips = [...track.clips];
+      const temp = newClips[idx];
+      newClips[idx] = newClips[idx - 1];
+      newClips[idx - 1] = temp;
+      return { ...track, clips: newClips };
+    });
+    state = { ...state, project: { ...state.project, tracks } };
+    notify();
+  },
+
+  alignElement: (
+    elementId: string,
+    alignment: "center-x" | "center-y" | "left" | "right" | "top" | "bottom"
+  ) => {
+    pushHistory();
+    const canvasW = state.project.width;
+    const canvasH = state.project.height;
+
+    projectActions.updateElement(elementId, (el) => {
+      const elW = el.transform.width;
+      const elH = el.transform.height;
+      let newX = el.transform.x;
+      let newY = el.transform.y;
+
+      switch (alignment) {
+        case "center-x":
+          newX = Math.round(canvasW / 2);
+          break;
+        case "center-y":
+          newY = Math.round(canvasH / 2);
+          break;
+        case "left":
+          newX = Math.round(elW / 2 + 60);
+          break;
+        case "right":
+          newX = Math.round(canvasW - elW / 2 - 60);
+          break;
+        case "top":
+          newY = Math.round(elH / 2 + 100);
+          break;
+        case "bottom":
+          newY = Math.round(canvasH - elH / 2 - 100);
+          break;
+      }
+
+      return {
+        ...el,
+        transform: { ...el.transform, x: newX, y: newY },
+      };
+    });
+  },
+
+  updateProjectTheme: (themeUpdates: Partial<VidFlowProject["theme"]>) => {
+    pushHistory();
+    state = {
+      ...state,
+      project: {
+        ...state.project,
+        theme: {
+          ...state.project.theme,
+          ...themeUpdates,
+        },
+      },
+    };
+    notify();
+  },
+
+  updateProjectSettings: (settings: {
+    title?: string;
+    fps?: number;
+    durationFrames?: number;
+    background?: string;
+    gradient?: string;
+  }) => {
+    pushHistory();
+    state = {
+      ...state,
+      project: {
+        ...state.project,
+        title: settings.title ?? state.project.title,
+        fps: settings.fps ?? state.project.fps,
+        durationFrames: settings.durationFrames ?? state.project.durationFrames,
+        theme: {
+          ...state.project.theme,
+          background: settings.background ?? state.project.theme.background,
+          gradient: settings.gradient ?? state.project.theme.gradient,
+        },
+      },
+    };
+    notify();
+  },
+
   undo: () => {
     if (undoStack.length === 0) return;
     const prev = undoStack.pop()!;

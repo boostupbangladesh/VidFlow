@@ -31,7 +31,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         <button
           onClick={onOpenAIModal}
           className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 hover:scale-105 transition-transform flex items-center justify-center text-white shadow-lg shadow-purple-600/30 group relative"
-          title="AI Prompt Generator (Gemini & Claude)"
+          title="AI Prompt Generator (Gemini 3.8 Flash & Argon 4)"
         >
           <Sparkles size={18} className="text-yellow-300 group-hover:rotate-12 transition-transform" />
           <span className="absolute left-14 bg-slate-900 border border-purple-500/30 text-white text-[11px] font-bold px-2 py-1 rounded shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">

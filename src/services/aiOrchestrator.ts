@@ -1,6 +1,5 @@
 import { VidFlowProject, AspectRatio } from "../types/schema";
 import { generateMotionWithGemini } from "./gemini";
-import { generateMotionWithClaude } from "./claude";
 import { generateSmartDynamicProject } from "./projectSanitizer";
 
 export const SYSTEM_PROMPT = `
@@ -635,7 +634,7 @@ export const PREBUILT_TEMPLATES: Record<string, (aspect: AspectRatio) => VidFlow
 
 export async function orchestrateMotionGeneration(params: {
   prompt: string;
-  provider: "gemini-3.8-flash" | "argon-4" | "template" | "gemini" | "claude";
+  provider: "gemini-3.8-flash" | "argon-4" | "template" | "gemini";
   aspectRatio: AspectRatio;
   apiKey?: string;
   templateKey?: string;
@@ -659,7 +658,7 @@ export async function orchestrateMotionGeneration(params: {
     return p;
   }
 
-  // 2. Gemini 3.8 Flash (Latest AI)
+  // 2. Google Gemini 3.8 Flash (Ultra-Fast Motion Generation)
   if (provider === "gemini-3.8-flash" || provider === "gemini") {
     try {
       onProgress?.("Connecting to Gemini 3.8 Flash...", 30);
@@ -669,7 +668,7 @@ export async function orchestrateMotionGeneration(params: {
       return res;
     } catch (err) {
       if (allowSmartFallback) {
-        console.warn("Gemini generation failed, activating Smart Zero-Token Dynamic Engine:", err);
+        console.warn("Gemini Flash generation failed, activating Smart Zero-Token Dynamic Engine:", err);
         onProgress?.("Activating Smart Fallback Engine...", 80);
         const fallbackProject = generateSmartDynamicProject(prompt, aspectRatio);
         onProgress?.("Ready!", 100);
@@ -679,17 +678,17 @@ export async function orchestrateMotionGeneration(params: {
     }
   }
 
-  // 3. Argon 4 / Claude (Latest Motion Math Engine)
-  if (provider === "argon-4" || provider === "claude") {
+  // 3. Google Gemini Argon 4 (Deep Kinetic & Mathematical Reasoning Engine)
+  if (provider === "argon-4") {
     try {
-      onProgress?.("Connecting to Argon 4 / Claude...", 30);
-      const res = await generateMotionWithClaude(prompt, aspectRatio, apiKey, SYSTEM_PROMPT, "argon-4");
+      onProgress?.("Connecting to Gemini Argon 4...", 30);
+      const res = await generateMotionWithGemini(prompt, aspectRatio, apiKey, SYSTEM_PROMPT, "argon-4");
       onProgress?.("Validating kinetic motion blueprint...", 90);
       onProgress?.("Ready!", 100);
       return res;
     } catch (err) {
       if (allowSmartFallback) {
-        console.warn("Argon generation failed, activating Smart Zero-Token Dynamic Engine:", err);
+        console.warn("Gemini Argon generation failed, activating Smart Zero-Token Dynamic Engine:", err);
         onProgress?.("Activating Smart Fallback Engine...", 80);
         const fallbackProject = generateSmartDynamicProject(prompt, aspectRatio);
         onProgress?.("Ready!", 100);

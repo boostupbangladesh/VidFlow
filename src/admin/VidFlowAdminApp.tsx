@@ -588,8 +588,8 @@ export const VidFlowAdminApp: React.FC<VidFlowAdminAppProps> = ({ onBackToStudio
 
                 <label className="flex items-center justify-between p-3 rounded-xl bg-[#121624] border border-white/[0.05] cursor-pointer">
                   <div>
-                    <div className="font-semibold text-white">Enable Argon 4 (Claude Engine)</div>
-                    <div className="text-slate-400 text-[11px]">Allow clients to use Argon 4 motion engine</div>
+                    <div className="font-semibold text-white">Enable Argon 4 (Gemini Cinematic Engine)</div>
+                    <div className="text-slate-400 text-[11px]">Allow clients to use Gemini Argon 4 cinematic motion engine</div>
                   </div>
                   <input
                     type="checkbox"

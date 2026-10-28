@@ -5,6 +5,8 @@ import { CanvasViewport } from "./components/CanvasViewport";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { TimelinePanel } from "./components/TimelinePanel";
 import { AIGeneratorModal } from "./components/AIGeneratorModal";
+import { FirstProjectCreatorModal } from "./components/FirstProjectCreatorModal";
+import { OnboardingLicenseGate } from "./components/OnboardingLicenseGate";
 import { ExportModal } from "./components/ExportModal";
 import { AboutModal } from "./components/AboutModal";
 import { LicenseModal } from "./components/LicenseModal";
@@ -12,11 +14,20 @@ import { SettingsModal } from "./components/SettingsModal";
 import { AdminPinModal } from "./components/AdminPinModal";
 import { VidFlowAdminApp } from "../admin/VidFlowAdminApp";
 import { useProjectStore } from "../store/useProjectStore";
+import { licenseService, LicenseKey } from "../services/licenseService";
 import { Film, Sliders, Layers, Sparkles } from "lucide-react";
 
 export const VidFlowApp: React.FC = () => {
   const [viewMode, setViewMode] = useState<"studio" | "admin">("studio");
+  const [activeLicense, setActiveLicense] = useState<LicenseKey | null>(() =>
+    licenseService.getActiveClientLicense()
+  );
+  const [hasCreatedProject, setHasCreatedProject] = useState<boolean>(() => {
+    return localStorage.getItem("vidflow_has_created_project") === "true";
+  });
+
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isFirstProjectModalOpen, setIsFirstProjectModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
@@ -78,14 +89,65 @@ export const VidFlowApp: React.FC = () => {
 
   // If in Admin Mode, show the SaaS Commander
   if (viewMode === "admin") {
-    return <VidFlowAdminApp onBackToStudio={() => setViewMode("studio")} />;
+    return (
+      <VidFlowAdminApp
+        onBackToStudio={() => {
+          setActiveLicense(licenseService.getActiveClientLicense());
+          setViewMode("studio");
+        }}
+      />
+    );
   }
 
+  // 1. STEP 1: License Activation Gate (Free Community Pass currently available)
+  if (!activeLicense) {
+    return (
+      <>
+        <OnboardingLicenseGate
+          onSuccess={(lic) => {
+            setActiveLicense(lic);
+          }}
+          onOpenAdmin={() => setIsAdminPinModalOpen(true)}
+        />
+        <AdminPinModal
+          isOpen={isAdminPinModalOpen}
+          onClose={() => setIsAdminPinModalOpen(false)}
+          onSuccess={() => {
+            setIsAdminPinModalOpen(false);
+            setViewMode("admin");
+          }}
+        />
+      </>
+    );
+  }
+
+  // 2. STEP 2: First-Time Project Creator with Professional Motion Guidelines
+  if (!hasCreatedProject) {
+    return (
+      <div className="flex flex-col h-screen w-screen bg-[#080a10] text-slate-100 overflow-hidden font-sans select-none relative">
+        <FirstProjectCreatorModal
+          isOpen={true}
+          onClose={() => {
+            localStorage.setItem("vidflow_has_created_project", "true");
+            setHasCreatedProject(true);
+          }}
+          onOpenSettings={() => setIsSettingsModalOpen(true)}
+        />
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  // 3. STEP 3: Full-Featured Interactive VidFlow Studio
   return (
     <div className="flex flex-col h-screen w-screen bg-[#080a10] text-slate-100 overflow-hidden font-sans select-none">
       {/* 1. Top Navigation Bar */}
       <TopNav
         onOpenAIModal={() => setIsAIModalOpen(true)}
+        onOpenFirstProjectModal={() => setIsFirstProjectModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
@@ -189,6 +251,11 @@ export const VidFlowApp: React.FC = () => {
         onClose={() => setIsAIModalOpen(false)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
       />
+      <FirstProjectCreatorModal
+        isOpen={isFirstProjectModalOpen}
+        onClose={() => setIsFirstProjectModalOpen(false)}
+        onOpenSettings={() => setIsSettingsModalOpen(true)}
+      />
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
@@ -199,7 +266,10 @@ export const VidFlowApp: React.FC = () => {
       />
       <LicenseModal
         isOpen={isLicenseModalOpen}
-        onClose={() => setIsLicenseModalOpen(false)}
+        onClose={() => {
+          setActiveLicense(licenseService.getActiveClientLicense());
+          setIsLicenseModalOpen(false);
+        }}
       />
       <SettingsModal
         isOpen={isSettingsModalOpen}
@@ -216,4 +286,3 @@ export const VidFlowApp: React.FC = () => {
     </div>
   );
 };
-

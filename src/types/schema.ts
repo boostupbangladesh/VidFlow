@@ -149,7 +149,7 @@ export interface VidFlowProject {
   audioTracks: AudioTrack[];
   aiPromptMetadata?: {
     prompt: string;
-    model: "gemini-3.8-flash" | "argon-4" | "gemini-2.0-flash" | "claude-3-5-sonnet" | "template-engine";
+    model: "gemini-3.8-flash" | "argon-4" | "gemini-2.0-flash" | "template-engine";
     timestamp: string;
   };
 }

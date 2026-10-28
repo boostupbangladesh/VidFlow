@@ -59,7 +59,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           <div className="p-2.5 rounded-xl bg-[#161a29] border border-white/[0.05]">
             <Sparkles size={16} className="mx-auto text-yellow-400 mb-1" />
             <span className="text-[10px] text-slate-400 block">AI Integration</span>
-            <span className="font-bold text-white">Gemini & Claude</span>
+            <span className="font-bold text-white">Gemini & Argon</span>
           </div>
           <div className="p-2.5 rounded-xl bg-[#161a29] border border-white/[0.05]">
             <ShieldCheck size={16} className="mx-auto text-purple-400 mb-1" />

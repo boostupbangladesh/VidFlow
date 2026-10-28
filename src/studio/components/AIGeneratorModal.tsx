@@ -26,7 +26,6 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
   );
 
   const [geminiKey, setGeminiKey] = useState("");
-  const [claudeKey, setClaudeKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [progressStage, setProgressStage] = useState("Initializing...");
@@ -36,9 +35,8 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setGeminiKey(localStorage.getItem("vidflow_gemini_api_key") || "");
-      setClaudeKey(localStorage.getItem("vidflow_claude_api_key") || "");
       const pref = localStorage.getItem("vidflow_default_model");
-      if (pref === "argon-4" || pref === "claude") {
+      if (pref === "argon-4") {
         setProvider("argon-4");
       } else {
         setProvider("gemini-3.8-flash");
@@ -74,14 +72,13 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
 
     const isPrebuiltTemplate = forcedMode === "bangla-ai-explainer" || forcedMode === "ecommerce-mega-sale";
     const activeProvider = isPrebuiltTemplate ? "template" : provider;
-    const activeKey =
-      activeProvider === "gemini-3.8-flash" ? geminiKey : activeProvider === "argon-4" ? claudeKey : undefined;
+    const activeKey = activeProvider === "template" ? undefined : geminiKey;
 
     // If external model chosen but no key saved, offer instant smart dynamic generation
     if (activeProvider !== "template" && !activeKey) {
       if (useSmartFallback) {
         setProgressPercent(50);
-        setProgressStage("API Key not found — generating instantly via Smart Zero-Token Engine...");
+        setProgressStage("Gemini API Key not found — generating instantly via Smart Zero-Token Engine...");
         setTimeout(() => {
           const dynamicProject = generateSmartDynamicProject(prompt, aspectRatio);
           actions.setProject(dynamicProject);
@@ -94,7 +91,7 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
 
       setIsLoading(false);
       setErrorMsg(
-        `Please configure your ${activeProvider === "gemini-3.8-flash" ? "Google Gemini" : "Argon 4 / Claude"} API key in Settings, or use Instant Demo.`
+        "Please configure your Google Gemini API key in Settings, or use Instant Demo."
       );
       return;
     }
@@ -182,7 +179,8 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <span>Argon 4 (Claude)</span>
+            <Sparkles size={13} className="text-cyan-300" />
+            <span>Gemini Argon 4</span>
           </button>
         </div>
 
@@ -203,7 +201,7 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
               )}
               <span>
                 {geminiKey
-                  ? "Gemini 3.8 Flash (Latest AI): Configured & Verified ✅"
+                  ? "Gemini 3.8 Flash (High-Speed Motion AI): Ready & Verified ✅"
                   : "No Gemini Key in Settings (Smart Zero-Token Engine will auto-generate)."}
               </span>
             </div>
@@ -226,21 +224,21 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
         {provider === "argon-4" && (
           <div
             className={`p-2.5 rounded-xl border text-xs flex items-center justify-between transition-colors ${
-              claudeKey
+              geminiKey
                 ? "bg-cyan-950/30 border-cyan-500/25 text-cyan-200"
                 : "bg-amber-500/10 border-amber-500/25 text-amber-200"
             }`}
           >
             <div className="flex items-center gap-2">
-              {claudeKey ? (
+              {geminiKey ? (
                 <CheckCircle2 size={14} className="text-emerald-400" />
               ) : (
                 <AlertCircle size={14} className="text-amber-400" />
               )}
               <span>
-                {claudeKey
-                  ? "Argon 4 (Advanced Motion AI): Configured & Verified ✅"
-                  : "No Claude Key in Settings (Smart Zero-Token Engine will auto-generate)."}
+                {geminiKey
+                  ? "Gemini Argon 4 (Advanced Cinematic Motion AI): Ready & Verified ✅"
+                  : "No Gemini Key in Settings (Smart Zero-Token Engine will auto-generate)."}
               </span>
             </div>
             {onOpenSettings && (
@@ -253,7 +251,7 @@ export const AIGeneratorModal: React.FC<AIGeneratorModalProps> = ({
                 className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 hover:underline"
               >
                 <Settings size={12} />
-                <span>{claudeKey ? "Manage in Settings" : "Configure Key"}</span>
+                <span>{geminiKey ? "Manage in Settings" : "Configure Key"}</span>
               </button>
             )}
           </div>

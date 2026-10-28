@@ -17,6 +17,7 @@ import { useProjectStore } from "../../store/useProjectStore";
 
 interface TopNavProps {
   onOpenAIModal: () => void;
+  onOpenFirstProjectModal?: () => void;
   onOpenExportModal: () => void;
   onOpenAboutModal: () => void;
   onOpenSettings: () => void;
@@ -24,6 +25,7 @@ interface TopNavProps {
 
 export const TopNav: React.FC<TopNavProps> = ({
   onOpenAIModal,
+  onOpenFirstProjectModal,
   onOpenExportModal,
   onOpenAboutModal,
   onOpenSettings,
@@ -227,6 +229,18 @@ export const TopNav: React.FC<TopNavProps> = ({
             <Settings size={15} />
           </button>
         </div>
+
+        {/* Motion Guidelines & Generator Wizard */}
+        {onOpenFirstProjectModal && (
+          <button
+            onClick={onOpenFirstProjectModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.07] hover:bg-white/[0.12] border border-purple-500/30 text-purple-200 text-xs font-semibold transition-all hover:scale-[1.02]"
+            title="Open Professional Motion Guidelines & Project Wizard"
+          >
+            <Sparkles size={13} className="text-purple-400" />
+            <span>Motion Guide</span>
+          </button>
+        )}
 
         {/* AI Generator Button */}
         <button

@@ -70,20 +70,26 @@ export async function generateMotionWithGemini(
     }
   };
 
+  const resolveGeminiModelId = (name: string): string => {
+    if (name === "argon-4") return "gemini-2.0-flash";
+    if (name === "gemini-3.8-flash") return "gemini-2.0-flash";
+    return name || "gemini-2.0-flash";
+  };
+
+  const actualModel = resolveGeminiModelId(modelName);
+
   try {
-    return await tryModel(modelName);
+    return await tryModel(actualModel);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    // If specific model is deprecated or not found, try fallback model
     if (
       msg.includes("not found") ||
       msg.includes("no longer available") ||
       msg.includes("is not supported") ||
       msg.includes("404")
     ) {
-      if (modelName === "gemini-3.8-flash") {
-        return await tryModel("gemini-1.5-flash", 25000);
-      }
+      // Fallback to gemini-1.5-flash if 2.0 endpoint is unavailable
+      return await tryModel("gemini-1.5-flash", 25000);
     }
     throw err;
   }

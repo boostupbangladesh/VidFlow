@@ -19,19 +19,17 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [geminiKey, setGeminiKey] = useState("");
-  const [claudeKey, setClaudeKey] = useState("");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
-  const [showClaudeKey, setShowClaudeKey] = useState(false);
-  const [defaultModel, setDefaultModel] = useState<"gemini" | "claude">("gemini");
+  const [defaultModel, setDefaultModel] = useState<"gemini-3.8-flash" | "argon-4">("gemini-3.8-flash");
   const [defaultFps, setDefaultFps] = useState<number>(30);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setGeminiKey(localStorage.getItem("vidflow_gemini_api_key") || "");
-      setClaudeKey(localStorage.getItem("vidflow_claude_api_key") || "");
       setDefaultModel(
-        (localStorage.getItem("vidflow_default_model") as "gemini" | "claude") || "gemini"
+        (localStorage.getItem("vidflow_default_model") as "gemini-3.8-flash" | "argon-4") ||
+          "gemini-3.8-flash"
       );
       setDefaultFps(Number(localStorage.getItem("vidflow_default_fps")) || 30);
       setSavedSuccess(false);
@@ -43,7 +41,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem("vidflow_gemini_api_key", geminiKey.trim());
-    localStorage.setItem("vidflow_claude_api_key", claudeKey.trim());
     localStorage.setItem("vidflow_default_model", defaultModel);
     localStorage.setItem("vidflow_default_fps", String(defaultFps));
 
@@ -66,7 +63,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div>
               <h3 className="font-outfit font-bold text-lg text-white">VidFlow Studio Settings</h3>
               <p className="text-xs text-slate-400">
-                Configure your AI API keys and export preferences once
+                Configure your Google Gemini AI API key and export preferences
               </p>
             </div>
           </div>
@@ -83,7 +80,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <div className="p-4 rounded-xl bg-[#141826] border border-white/[0.06] space-y-3.5">
             <div className="flex items-center gap-2 text-slate-200 font-bold uppercase tracking-wider text-[11px]">
               <Sparkles size={14} className="text-purple-400" />
-              <span>AI API Providers</span>
+              <span>Google Gemini AI Engine</span>
             </div>
 
             {/* Google Gemini API Key */}
@@ -95,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </label>
                 {geminiKey && (
                   <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-                    <CheckCircle2 size={10} /> Saved
+                    <CheckCircle2 size={10} /> Saved Locally
                   </span>
                 )}
               </div>
@@ -116,54 +113,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </button>
               </div>
               <p className="text-[10px] text-slate-500">
-                Used for Gemini 2.0 Flash / Pro generation. Keys are stored locally on your machine.
-              </p>
-            </div>
-
-            {/* Anthropic Claude API Key */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Key size={12} className="text-cyan-400" />
-                  <span>Anthropic Claude API Key</span>
-                </label>
-                {claudeKey && (
-                  <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-                    <CheckCircle2 size={10} /> Saved
-                  </span>
-                )}
-              </div>
-              <div className="relative">
-                <input
-                  type={showClaudeKey ? "text" : "password"}
-                  placeholder="sk-ant-api..."
-                  value={claudeKey}
-                  onChange={(e) => setClaudeKey(e.target.value)}
-                  className="w-full bg-[#1c2236] border border-white/[0.08] rounded-xl px-3 py-2 pr-10 text-white font-mono outline-none focus:border-purple-500 transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowClaudeKey(!showClaudeKey)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                >
-                  {showClaudeKey ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-              <p className="text-[10px] text-slate-500">
-                Used for Claude 3.5 Sonnet motion blueprints. Keys are never sent to external servers.
+                Powers Gemini 3.8 Flash & Gemini Argon 4. Keys are stored locally on your machine.
               </p>
             </div>
 
             {/* Preferred Default Model */}
             <div className="space-y-1.5 pt-1">
-              <label className="font-semibold text-slate-300">Default AI Model</label>
+              <label className="font-semibold text-slate-300">Default Gemini Model</label>
               <select
                 value={defaultModel}
-                onChange={(e) => setDefaultModel(e.target.value as "gemini" | "claude")}
+                onChange={(e) =>
+                  setDefaultModel(e.target.value as "gemini-3.8-flash" | "argon-4")
+                }
                 className="w-full bg-[#1c2236] border border-white/[0.08] rounded-xl px-3 py-2 text-white outline-none focus:border-purple-500"
               >
-                <option value="gemini">Gemini 3.8 Flash (Latest AI Motion Engine)</option>
-                <option value="claude">Argon 4 / Claude (Advanced Mathematical Keyframing)</option>
+                <option value="gemini-3.8-flash">Google Gemini 3.8 Flash (Ultra-Fast Motion)</option>
+                <option value="argon-4">Google Gemini Argon 4 (Deep Kinetic Architecture)</option>
               </select>
             </div>
           </div>

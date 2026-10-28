@@ -134,7 +134,7 @@ jobs:
             - **Android Mobile:** Download the `.apk` file below and install it directly on your Android phone or tablet.
 
             ### ✨ Key Highlights
-            - AI Prompt-to-Motion graphics generator (Google Gemini & Claude)
+            - AI Prompt-to-Motion graphics generator (Google Gemini 3.8 Flash & Gemini Argon 4)
             - Bangla and English kinetic typography
             - Multi-track timeline & WYSIWYG canvas
             - Frame-accurate video export with voiceover & background music

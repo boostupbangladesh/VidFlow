@@ -27,8 +27,9 @@ export interface SaaSStats {
 export interface SystemConfig {
   maintenanceMode: boolean;
   announcement: string;
-  allowedModels: ("gemini-3.8-flash" | "argon-4" | "gemini-2.0-flash" | "claude-3-5-sonnet")[];
+  allowedModels: ("gemini-3.8-flash" | "argon-4" | "gemini-2.0-flash")[];
   enable4KExport: boolean;
+  enforcePaidLicense: boolean;
   developerWhatsApp: string;
 }
 
@@ -90,10 +91,11 @@ const INITIAL_LICENSES: LicenseKey[] = [
 
 const INITIAL_CONFIG: SystemConfig = {
   maintenanceMode: false,
-  announcement: "🚀 Welcome to VidFlow v1.0! Powered by Gemini 3.8 Flash & Argon 4.",
-  allowedModels: ["gemini-3.8-flash", "argon-4"],
+  announcement: "🚀 Welcome to VidFlow v1.0! Powered by Google Gemini 3.8 Flash & Gemini Argon 4.",
+  allowedModels: ["gemini-3.8-flash", "argon-4", "gemini-2.0-flash"],
   enable4KExport: true,
-  developerWhatsApp: "8801911444546",
+  enforcePaidLicense: false, // Currently FREE for community/beta. Set to true in Admin to strictly enforce paid keys!
+  developerWhatsApp: "+8801911444546",
 };
 
 class LicenseService {
@@ -315,16 +317,60 @@ class LicenseService {
     };
   }
 
+  public isLicenseEnforced(): boolean {
+    return this.getConfig().enforcePaidLicense ?? false;
+  }
+
+  // Claim Free Beta / Community pass when enforcement is disabled
+  public claimFreeCommunityPass(customerName: string = "Creator"): {
+    success: boolean;
+    message: string;
+    license?: LicenseKey;
+  } {
+    if (this.isLicenseEnforced()) {
+      return {
+        success: false,
+        message: "Free Community Passes are currently closed. A paid commercial license is required.",
+      };
+    }
+
+    const freeLic: LicenseKey = {
+      id: "lic_free_" + Date.now(),
+      key: "VIDFLOW-FREE-COMMUNITY-BETA",
+      customerName: customerName.trim() || "Community Creator",
+      customerPhone: "",
+      customerEmail: "free.user@vidflow.io",
+      tier: "starter",
+      status: "active",
+      createdAt: new Date().toISOString(),
+      expiresAt: null,
+      maxDevices: 1,
+      boundDevices: [this.getMachineId()],
+      pricePaidBDT: 0,
+      notes: "Free Community Beta Pass",
+    };
+
+    localStorage.setItem(STORAGE_KEYS.CLIENT_ACTIVE_LICENSE, JSON.stringify(freeLic));
+    return {
+      success: true,
+      message: "Free Community Pass activated! Welcome to VidFlow Studio.",
+      license: freeLic,
+    };
+  }
+
   public getActiveClientLicense(): LicenseKey | null {
     const raw = localStorage.getItem(STORAGE_KEYS.CLIENT_ACTIVE_LICENSE);
     if (!raw) {
-      // Default to the first pre-seeded pro license for dev/testing so app is usable out of the box
-      const defaultLic = INITIAL_LICENSES[0];
-      localStorage.setItem(STORAGE_KEYS.CLIENT_ACTIVE_LICENSE, JSON.stringify(defaultLic));
-      return defaultLic;
+      return null;
     }
     try {
-      return JSON.parse(raw);
+      const lic: LicenseKey = JSON.parse(raw);
+      // If paid license is now strictly enforced, invalidate zero-price passes
+      if (this.isLicenseEnforced() && lic.pricePaidBDT === 0) {
+        localStorage.removeItem(STORAGE_KEYS.CLIENT_ACTIVE_LICENSE);
+        return null;
+      }
+      return lic;
     } catch {
       return null;
     }
